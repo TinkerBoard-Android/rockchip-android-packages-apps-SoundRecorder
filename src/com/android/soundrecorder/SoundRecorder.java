@@ -477,8 +477,10 @@ public class SoundRecorder extends Activity
 
     @Override
     protected void onPause() {
-        mSampleInterrupted = mRecorder.state() == Recorder.RECORDING_STATE;
-        mRecorder.stop();
+	if (mRecorder != null) {
+	     mSampleInterrupted = mRecorder.state() == Recorder.RECORDING_STATE;
+	     mRecorder.stop();
+	}
         
         super.onPause();
     }
