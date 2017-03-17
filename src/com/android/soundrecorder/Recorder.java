@@ -147,7 +147,7 @@ public class Recorder implements OnCompletionListener, OnErrorListener {
         stop();
         
         if (mSampleFile == null) {
-            File sampleDir = Environment.getExternalStorageDirectory();
+	    File sampleDir = context.getExternalFilesDir(Environment.DIRECTORY_DOWNLOADS);
             if (!sampleDir.canWrite()) // Workaround for broken sdcard support on the device.
                 sampleDir = new File("/sdcard/sdcard");
             

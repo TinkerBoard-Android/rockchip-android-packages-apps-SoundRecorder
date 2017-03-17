@@ -20,6 +20,9 @@ import java.io.File;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 
+
+import android.content.pm.PackageManager;
+import android.Manifest;
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.content.ContentResolver;
@@ -240,10 +243,15 @@ public class SoundRecorder extends Activity
     Button mDiscardButton;
     VUMeter mVUMeter;
     private BroadcastReceiver mSDCardMountEventReceiver = null;
+    private boolean mPermissionCheckActive = false;
 
     @Override
     public void onCreate(Bundle icycle) {
         super.onCreate(icycle);
+
+	if (!checkPermissions()) {
+		return;
+	}
 
         Intent i = getIntent();
         if (i != null) {
@@ -348,6 +356,26 @@ public class SoundRecorder extends Activity
         mTimerFormat = getResources().getString(R.string.timer_format);
         
         mVUMeter.setRecorder(mRecorder);
+    }
+
+    private boolean checkPermissions() {
+        if (mPermissionCheckActive) return false;
+
+        // Check for all runtime permissions
+        if ((checkSelfPermission(Manifest.permission.RECORD_AUDIO)
+                != PackageManager.PERMISSION_GRANTED)
+            || (checkSelfPermission(Manifest.permission.WRITE_EXTERNAL_STORAGE)
+                != PackageManager.PERMISSION_GRANTED)) {
+            Log.i(TAG, "Requested audio permissions");
+            requestPermissions(new String[] {
+                        Manifest.permission.RECORD_AUDIO,
+                        Manifest.permission.WRITE_EXTERNAL_STORAGE}, 1
+                    );
+            mPermissionCheckActive = true;
+            return false;
+        }
+
+        return true;
     }
     
     /*
