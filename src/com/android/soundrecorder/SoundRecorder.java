@@ -249,9 +249,6 @@ public class SoundRecorder extends Activity
     public void onCreate(Bundle icycle) {
         super.onCreate(icycle);
 
-	if (!checkPermissions()) {
-		return;
-	}
 
         Intent i = getIntent();
         if (i != null) {
@@ -300,6 +297,10 @@ public class SoundRecorder extends Activity
         }
         
         updateUi();
+
+	if (!checkPermissions()) {
+		return;
+	}
     }
     
     @Override
