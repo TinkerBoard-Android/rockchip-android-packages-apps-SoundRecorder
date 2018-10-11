@@ -262,6 +262,11 @@ public class SoundRecorder extends Activity
                 = android.provider.MediaStore.Audio.Media.EXTRA_MAX_BYTES;
             mMaxFileSize = i.getLongExtra(EXTRA_MAX_BYTES, -1);
         }
+
+        if (CheckPermissionActivity.jump2PermissionActivity(this, i)) {
+            finish();
+            return;
+        }
         
         if (AUDIO_ANY.equals(mRequestedType) || ANY_ANY.equals(mRequestedType)) {
             mRequestedType = AUDIO_3GPP;
