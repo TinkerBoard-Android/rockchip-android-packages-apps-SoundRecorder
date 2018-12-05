@@ -10,19 +10,16 @@ import android.os.Bundle;
 import android.text.TextUtils;
 import android.widget.Toast;
 
-import com.android.soundrecorder.R;
-
 /**
  * Created by waha on 2017/12/5.
  */
 
 public class CheckPermissionActivity extends Activity {
-    public static final int REQUEST_CODE_ASK_PERMISSIONS = 124;
-    private static String mJumpActivityName;
-    public static final String[] REQUEST_PERMISSIONS = new String[]{
+    private final int REQUEST_CODE_ASK_PERMISSIONS = 124;
+    private static final String[] REQUEST_PERMISSIONS = new String[]{
             Manifest.permission.WRITE_EXTERNAL_STORAGE,
             Manifest.permission.READ_EXTERNAL_STORAGE,
-            //Manifest.permission.READ_PHONE_STATE,
+//            Manifest.permission.READ_PHONE_STATE,
             Manifest.permission.RECORD_AUDIO
     };
 
@@ -48,7 +45,7 @@ public class CheckPermissionActivity extends Activity {
                     }
                 }
                 // Permission Granted
-                back2JumpActivity();
+                back2MainActivity();
                 break;
             default:
                 super.onRequestPermissionsResult(requestCode, permissions, grantResults);
@@ -56,44 +53,23 @@ public class CheckPermissionActivity extends Activity {
 
     }
 
-    private void back2JumpActivity() {
-        Intent intent = null;
-        try {
-            intent = new Intent(this, Class.forName(mJumpActivityName));
-        } catch (ClassNotFoundException e) {
-            e.printStackTrace();
-            finish();
-            return;
-        }
-        if (null != getIntent()) {
+    private void back2MainActivity() {
+        Intent intent = new Intent(this, SoundRecorder.class);
+        if (null != getIntent() && null != getIntent().getAction()) {
             intent.setAction(getIntent().getAction());
-            intent.setDataAndType(getIntent().getData(), getIntent().getType());
         }
         startActivity(intent);
         finish();
     }
 
-    public static boolean jump2PermissionActivity(Activity activity, Intent intent) {
-        if (hasUnauthorizedPermission(activity)) {
-            Intent newIntent = new Intent(activity, CheckPermissionActivity.class);
-            if (null != intent) {
-                newIntent.setAction(intent.getAction());
-                newIntent.setDataAndType(intent.getData(), intent.getType());
-                if (null != intent.getExtras()) {
-                    newIntent.putExtras(intent.getExtras());
-                }
-                //newIntent.setFlags(intent.getFlags());
-            }
-            activity.startActivity(newIntent);
-            mJumpActivityName = activity.getComponentName().getClassName();
-            return true;
-        }
-        return false;
-    }
-
-    public static boolean hasUnauthorizedPermission(Activity activity) {
+    public static boolean jump2PermissionActivity(Activity activity, String action) {
         for (String permission : REQUEST_PERMISSIONS) {
             if (PackageManager.PERMISSION_GRANTED != activity.checkSelfPermission(permission)) {
+                Intent intent = new Intent(activity, CheckPermissionActivity.class);
+                if (!TextUtils.isEmpty(action)) {
+                    intent.setAction(action);
+                }
+                activity.startActivity(intent);
                 return true;
             }
         }
