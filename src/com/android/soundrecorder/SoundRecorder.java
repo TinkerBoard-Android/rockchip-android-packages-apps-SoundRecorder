@@ -398,7 +398,7 @@ public class SoundRecorder extends Activity
         if (null == mPrefs) {
             mPrefs = getSharedPreferences(SOUND_RECORDER_DATA, 0);
         }
-        mSelectedFormat = mPrefs.getInt(SELECTED_RECORDING_FORMAT, LOW);
+        mSelectedFormat = mPrefs.getInt(SELECTED_RECORDING_FORMAT, HIGH);
         mSelectedMode = mPrefs.getInt(SELECTED_RECORDING_MODE, NORMAL);
         mByteRate = mPrefs.getInt(BYTE_RATE, 0);
 
