@@ -40,9 +40,12 @@
     <string name="min_available"><xliff:g id="minutes">%d</xliff:g> min available</string>
     <!-- label shown when there is less than 1 minute of space left to record -->
     <string name="sec_available"><xliff:g id="seconds">%d</xliff:g>s available</string>
+    <string name="min_sec_available"><xliff:g id="minutes">%d</xliff:g> min <xliff:g id="seconds">%d</xliff:g>s available</string>
 
     <!-- button to accept the current recording and return it to the caller -->
-    <string name="accept">Done</string>
+    <string name="accept">Save</string>
+    <string name="no_sd">SD card is unmount!</string>
+    <string name="accept_sd">Save in SD card</string>
     <!-- button to discard the current recording and return to the caller -->
     <string name="discard">Discard</string>
     <!-- acknowlegement button in a number of dialogs -->
@@ -67,6 +70,33 @@
     <string name="error_app_internal">Internal application error.</string>
     <!-- shown as the message in a dialog when the recording could not be added to the media database -->
     <string name="error_mediadb_new_record">Couldn\'t save recorded audio.</string>
+
+    <string name="success_mediadb_new_record">success saved recorded audio.</string>
+    <string name="cancel">Cancel</string>
+    <string name="recording_format_high">High</string>
+    <string name="recording_format_mid">Mid</string>
+    <string name="recording_format_low">Low</string>
+
+    <string name="voice_quality">Voice quality</string>
+    <string name="recording_mode">Recording mode</string>
+    <string name="select_voice_quality">Select voice quality</string>
+    <string name="select_recording_mode">Select recording mode</string>
+    <string name="recording_mode_nomal">Normal</string>
+
+    <string name="recording_mode_meeting">Meeting</string>
+    <string name="recording_mode_lecture">Lecture</string>
+
+    <string name="error_incall_record">Calls cannot be recorded</string>
+    <string name="error_app_recorder_occupied">Recorder is occupied by other application.</string>
+    <string name="error_app_failed_title">Failed in recording</string>
+
+    <string name="recording_file_list">Recording file list</string>
+    <string name="ok">OK</string>
+    <string name="delete">Delete</string>
+    <string name="deleting">Deleting</string>
+    <string name="no_recording_file">(No recording file)</string>
+    <string name="alert_delete_multiple">These items will be deleted</string>
+    <string name="alert_delete_single">This item will be deleted</string>
 
     <string name="err_permission">Permission Error</string>
 </resources>

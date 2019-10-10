@@ -14,7 +14,7 @@
      limitations under the License.
 -->
 <resources>
-    <style name="Theme.SoundRecorder" parent="@android:style/Theme.Holo.DialogWhenLarge">
+    <style name="Theme.SoundRecorder" parent="@android:style/Theme.Holo">
         <item name="android:windowCloseOnTouchOutside">true</item>
     </style>
     <style name="MediaButton" parent="@android:style/MediaButton">
