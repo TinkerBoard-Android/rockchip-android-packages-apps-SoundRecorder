@@ -838,7 +838,10 @@ public class SoundRecorder extends Activity
                         Uri uri = null;
                         uri = addToMediaDB(new File(sdPath));
                         mRecorder.delete();
-                        setResult(RESULT_OK, new Intent().setData(uri));
+                        Intent intent = new Intent();
+                        intent.setData(uri);
+                        intent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
+                        setResult(RESULT_OK, intent);
                         if (!mRunFromLauncher) {
                             finish();
                         }
@@ -1019,7 +1022,10 @@ public class SoundRecorder extends Activity
         if (uri == null) {
             return;
         }
-        setResult(RESULT_OK, new Intent().setData(uri));
+        Intent intent = new Intent();
+        intent.setData(uri);
+        intent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
+        setResult(RESULT_OK, intent);
 
         if (mRunFromLauncher) {
             /*new AlertDialog.Builder(this)
