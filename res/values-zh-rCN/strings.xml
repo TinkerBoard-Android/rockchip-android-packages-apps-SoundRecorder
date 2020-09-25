@@ -28,7 +28,8 @@
     <string name="insert_sd_card" product="default" msgid="1007630222084726808">"请插入SD卡"</string>
     <string name="min_available" msgid="5493947690062988925">"还剩<xliff:g id="MINUTES">%d</xliff:g>分钟"</string>
     <string name="sec_available" msgid="2297020788861694399">"还剩<xliff:g id="SECONDS">%d</xliff:g>秒"</string>
-    <string name="accept" msgid="1888285552128743656">"完成"</string>
+    <string name="min_sec_available" >"还剩 %1$d 分钟 %2$d 秒"</string>
+    <string name="accept" msgid="1888285552128743656">"保存"</string>
     <string name="discard" msgid="761613433029406319">"放弃"</string>
     <string name="button_ok" msgid="3004911343723076226">"确定"</string>
     <!-- no translation found for audio_db_title_format (7912182366970749312) -->
@@ -40,4 +41,22 @@
     <string name="error_sdcard_access" product="default" msgid="5750308258096153274">"无法使用SD卡。"</string>
     <string name="error_app_internal" msgid="312884382388702022">"发生内部应用错误。"</string>
     <string name="error_mediadb_new_record" msgid="261714902333432462">"无法保存录制的音频。"</string>
+
+    <string name="success_mediadb_new_record">"成功保存录制的音频。"</string>
+    <string name="cancel">取消</string>
+    <string name="recording_format_high">高</string>
+    <string name="recording_format_mid">中</string>
+    <string name="recording_format_low">低</string>
+    <string name="voice_quality">音质</string>
+    <string name="recording_mode">录音模式</string>
+    <string name="select_voice_quality">选择音质</string>
+    <string name="select_recording_mode">选择录音模式</string>
+    <string name="recording_mode_nomal">"普通"</string>
+    <string name="recording_mode_meeting">会议</string>
+    <string name="recording_mode_lecture">远距录音</string>
+    <string name="error_incall_record">通话中无法进行录音，建议通话结束后继续。</string>
+    <string name="error_app_recorder_occupied">有其他应用程序正在使用录音机</string>
+    <string name="error_app_failed_title">录音失败</string>
+
+    <string name="err_permission">"无权限"</string>
 </resources>

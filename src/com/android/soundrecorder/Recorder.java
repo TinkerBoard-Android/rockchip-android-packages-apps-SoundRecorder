@@ -18,6 +18,8 @@ package com.android.soundrecorder;
 
 import java.io.File;
 import java.io.IOException;
+import java.text.SimpleDateFormat;
+import java.util.Date;
 
 import android.content.Context;
 import android.media.AudioManager;
@@ -30,9 +32,11 @@ import android.os.Environment;
 import android.util.Log;
 
 public class Recorder implements OnCompletionListener, OnErrorListener {
+    static final String TAG = "Recorder";
     static final String SAMPLE_PREFIX = "recording";
     static final String SAMPLE_PATH_KEY = "sample_path";
     static final String SAMPLE_LENGTH_KEY = "sample_length";
+    public static final String RECORD_FOLDER = "Records";
 
     public static final int IDLE_STATE = 0;
     public static final int RECORDING_STATE = 1;
@@ -57,10 +61,16 @@ public class Recorder implements OnCompletionListener, OnErrorListener {
     
     MediaRecorder mRecorder = null;
     MediaPlayer mPlayer = null;
-    
+
+    int mSamplingRate = 48000;
+
     public Recorder() {
     }
-    
+
+    public void setAudioSamplingRate(int rate) {
+        mSamplingRate = rate;
+    }
+
     public void saveState(Bundle recorderState) {
         recorderState.putString(SAMPLE_PATH_KEY, mSampleFile.getAbsolutePath());
         recorderState.putInt(SAMPLE_LENGTH_KEY, mSampleLength);
@@ -142,33 +152,83 @@ public class Recorder implements OnCompletionListener, OnErrorListener {
         
         signalStateChanged(IDLE_STATE);
     }
-    
-    public void startRecording(int outputfileformat, String extension, Context context) {
+
+    public void startRecording(int outputfileformat, int recordingType, String extension, Context context) {
         stop();
-        
         if (mSampleFile == null) {
             File sampleDir = Environment.getExternalStorageDirectory();
             if (!sampleDir.canWrite()) // Workaround for broken sdcard support on the device.
                 sampleDir = new File("/sdcard/sdcard");
-            
+            String sampleDirPath = null;
+            if (sampleDir != null) {
+                sampleDirPath = sampleDir.getAbsolutePath() + File.separator
+                        + RECORD_FOLDER;
+            }
+            if (sampleDirPath != null) {
+                sampleDir = new File(sampleDirPath);
+            }
+            if (sampleDir != null && !sampleDir.exists()) {
+                if (!sampleDir.mkdirs()) {
+                    Log.i(TAG, "<startRecording> make dirs fail");
+                }
+            }
             try {
-                mSampleFile = File.createTempFile(SAMPLE_PREFIX, extension, sampleDir);
+                if (null != sampleDir) {
+                    Log.i(TAG, "SR sampleDir  is:" + sampleDir.toString());
+                }
+                SimpleDateFormat simpleDateFormat = new SimpleDateFormat(
+                        "yyyyMMddHHmmss");
+                String time = simpleDateFormat.format(new Date(System
+                        .currentTimeMillis()));
+                StringBuilder stringBuilder = new StringBuilder();
+                stringBuilder.append(SAMPLE_PREFIX).append("_" + time)
+                        .append(extension);
+                String name = stringBuilder.toString();
+                mSampleFile = new File(sampleDir, name);
+                boolean result = mSampleFile.createNewFile();
+                if (result) {
+                    Log.i(TAG, "creat file success");
+                }
             } catch (IOException e) {
                 setError(SDCARD_ACCESS_ERROR);
                 return;
             }
         }
-        
+
         mRecorder = new MediaRecorder();
         mRecorder.setAudioSource(MediaRecorder.AudioSource.MIC);
         mRecorder.setOutputFormat(outputfileformat);
-        mRecorder.setAudioEncoder(MediaRecorder.AudioEncoder.AMR_NB);
         mRecorder.setOutputFile(mSampleFile.getAbsolutePath());
+
+        mRecorder.setAudioSamplingRate(mSamplingRate);
+        switch (recordingType) {
+            case MediaRecorder.AudioEncoder.AAC:
+                mRecorder.setAudioEncoder(MediaRecorder.AudioEncoder.AAC);
+                mRecorder.setAudioEncodingBitRate(SoundRecorder.BITRATE_AAC);
+                mRecorder.setAudioSamplingRate(SoundRecorder.SAMPLE_RATE_AAC);
+                mRecorder.setAudioChannels(2);
+                break;
+
+            case MediaRecorder.AudioEncoder.AMR_WB:
+                mRecorder.setAudioEncoder(MediaRecorder.AudioEncoder.AMR_NB);
+                mRecorder.setAudioEncodingBitRate(SoundRecorder.BITRATE_AWB);
+                mRecorder.setAudioSamplingRate(SoundRecorder.SAMPLE_RATE_AWB);
+                break;
+
+            case MediaRecorder.AudioEncoder.AMR_NB:
+                mRecorder.setAudioEncoder(MediaRecorder.AudioEncoder.AMR_NB);
+                mRecorder.setAudioEncodingBitRate(SoundRecorder.BITRATE_AMR);
+                break;
+
+            default:
+                break;
+
+        }
 
         // Handle IOException
         try {
             mRecorder.prepare();
-        } catch(IOException exception) {
+        } catch (IOException exception) {
             setError(INTERNAL_ERROR);
             mRecorder.reset();
             mRecorder.release();
@@ -179,7 +239,7 @@ public class Recorder implements OnCompletionListener, OnErrorListener {
         try {
             mRecorder.start();
         } catch (RuntimeException exception) {
-            AudioManager audioMngr = (AudioManager)context.getSystemService(Context.AUDIO_SERVICE);
+            AudioManager audioMngr = (AudioManager) context.getSystemService(Context.AUDIO_SERVICE);
             boolean isInCall = ((audioMngr.getMode() == AudioManager.MODE_IN_CALL) ||
                     (audioMngr.getMode() == AudioManager.MODE_IN_COMMUNICATION));
             if (isInCall) {
@@ -195,7 +255,7 @@ public class Recorder implements OnCompletionListener, OnErrorListener {
         mSampleStart = System.currentTimeMillis();
         setState(RECORDING_STATE);
     }
-    
+
     public void stopRecording() {
         if (mRecorder == null)
             return;
