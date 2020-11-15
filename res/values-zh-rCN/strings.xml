@@ -58,5 +58,13 @@
     <string name="error_app_recorder_occupied">有其他应用程序正在使用录音机</string>
     <string name="error_app_failed_title">录音失败</string>
 
+    <string name="recording_file_list">录音文件列表</string>
+    <string name="ok">确定</string>
+    <string name="delete">删除</string>
+    <string name="deleting">正在删除</string>
+    <string name="no_recording_file">(没有录音文件)</string>
+    <string name="alert_delete_multiple">将会删除这些文件</string>
+    <string name="alert_delete_single">将会删除该文件</string>
+
     <string name="err_permission">"无权限"</string>
 </resources>

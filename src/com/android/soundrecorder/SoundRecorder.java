@@ -253,6 +253,7 @@ public class SoundRecorder extends Activity
     ImageButton mRecordButton;
     ImageButton mPlayButton;
     ImageButton mStopButton;
+    ImageButton mFileListButton;
 
     ImageView mStateLED;
     TextView mStateMessage1;
@@ -610,6 +611,13 @@ public class SoundRecorder extends Activity
         mRecordButton = (ImageButton) findViewById(R.id.recordButton);
         mPlayButton = (ImageButton) findViewById(R.id.playButton);
         mStopButton = (ImageButton) findViewById(R.id.stopButton);
+        mFileListButton = (ImageButton) findViewById(R.id.fileListButton);
+
+        if (mRunFromLauncher) {
+            mFileListButton.setOnClickListener(this);
+        } else {
+            mFileListButton.setVisibility(View.GONE);
+        }
 
         mStateLED = (ImageView) findViewById(R.id.stateLED);
         mStateMessage1 = (TextView) findViewById(R.id.stateMessage1);
@@ -769,6 +777,18 @@ public class SoundRecorder extends Activity
                     finish();
                 }
                 break;
+            case R.id.fileListButton:
+                mFileListButton.setEnabled(false);
+                //leave this activity,set mSampleFile is null
+                if ((mRecorder != null) && mRecorder.sampleFile() != null) {
+                    mRecorder.mSampleFile = null;
+                    mRecorder.mSampleLength = 0;
+                }
+                Intent mIntent = new Intent();
+                mIntent.setClass(this, RecordingFileList.class);
+                startActivityForResult(mIntent, REQURST_FILE_LIST);
+                break;
+
             case R.id.discardButton:
                 mRecorder.delete();
                 if (!mRunFromLauncher) {
@@ -840,6 +860,7 @@ public class SoundRecorder extends Activity
             return;
         Uri uri = null;
         try {
+            mRecorder.sampleFileDelSuffix();
             uri = this.addToMediaDB(mRecorder.sampleFile());
         } catch (UnsupportedOperationException ex) {  // Database manipulation failure
             return;
@@ -1158,6 +1179,9 @@ public class SoundRecorder extends Activity
                     mStopButton.setFocusable(false);
                     mRecordButton.requestFocus();
 
+                    mFileListButton.setEnabled(true);
+                    mFileListButton.setFocusable(true);
+
                     mStateMessage1.setVisibility(View.INVISIBLE);
                     mStateLED.setVisibility(View.INVISIBLE);
                     mStateMessage2.setVisibility(View.INVISIBLE);
@@ -1211,6 +1235,9 @@ public class SoundRecorder extends Activity
                 mPlayButton.setFocusable(false);
                 mStopButton.setEnabled(true);
                 mStopButton.setFocusable(true);
+
+                mFileListButton.setEnabled(false);
+                mFileListButton.setFocusable(false);
 
                 mStateMessage1.setVisibility(View.VISIBLE);
                 mStateLED.setVisibility(View.VISIBLE);
@@ -1306,6 +1333,7 @@ public class SoundRecorder extends Activity
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         if (RESULT_OK == resultCode) {
+            mFileListButton.setEnabled(true);
             Intent intent = data;
             Bundle bundle = intent.getExtras();
             if (bundle != null) {

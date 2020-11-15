@@ -48,6 +48,8 @@ public class Recorder implements OnCompletionListener, OnErrorListener {
     public static final int SDCARD_ACCESS_ERROR = 1;
     public static final int INTERNAL_ERROR = 2;
     public static final int IN_CALL_RECORD_ERROR = 3;
+
+    public static final String TEMP_SUFFIX = ".tmp";
     
     public interface OnStateChangedListener {
         public void onStateChanged(int state);
@@ -156,7 +158,10 @@ public class Recorder implements OnCompletionListener, OnErrorListener {
     public void startRecording(int outputfileformat, int recordingType, String extension, Context context) {
         stop();
         if (mSampleFile == null) {
-            File sampleDir = Environment.getExternalStorageDirectory();
+            String myExtension = extension + TEMP_SUFFIX;
+            //File sampleDir = Environment.getExternalStorageDirectory();
+            File sampleDir = Environment.getExternalStoragePublicDirectory(
+                    Environment.DIRECTORY_DOCUMENTS);
             if (!sampleDir.canWrite()) // Workaround for broken sdcard support on the device.
                 sampleDir = new File("/sdcard/sdcard");
             String sampleDirPath = null;
@@ -182,7 +187,7 @@ public class Recorder implements OnCompletionListener, OnErrorListener {
                         .currentTimeMillis()));
                 StringBuilder stringBuilder = new StringBuilder();
                 stringBuilder.append(SAMPLE_PREFIX).append("_" + time)
-                        .append(extension);
+                        .append(myExtension);
                 String name = stringBuilder.toString();
                 mSampleFile = new File(sampleDir, name);
                 boolean result = mSampleFile.createNewFile();
@@ -254,6 +259,30 @@ public class Recorder implements OnCompletionListener, OnErrorListener {
         }
         mSampleStart = System.currentTimeMillis();
         setState(RECORDING_STATE);
+    }
+
+    public void sampleFileDelSuffix() {
+        if ((mSampleFile != null) && mSampleFile.exists()) {
+            String oldPath = mSampleFile.getAbsolutePath();
+            if (oldPath.endsWith(TEMP_SUFFIX)) {
+                String newPath = oldPath.substring(0,
+                        oldPath.lastIndexOf(TEMP_SUFFIX));
+                File newFile = new File(newPath);
+                boolean result = mSampleFile.renameTo(newFile);
+                if (result) {
+                    mSampleFile = newFile;
+                    Log.i(TAG, "<sampleFileDelSuffix()> rename file <"
+                            + oldPath + "> to <" + newPath + ">");
+                } else {
+                    Log.i(TAG,
+                            "<sampleFileDelSuffix()> rename file fail");
+                }
+            } else {
+                Log.i(TAG, "<sampleFileDelSuffix()> file <" + oldPath
+                        + "> is not end with <.tmp>");
+                return;
+            }
+        }
     }
 
     public void stopRecording() {

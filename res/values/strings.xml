@@ -88,5 +88,13 @@
     <string name="error_app_recorder_occupied">Recorder is occupied by other application.</string>
     <string name="error_app_failed_title">Failed in recording</string>
 
+    <string name="recording_file_list">Recording file list</string>
+    <string name="ok">OK</string>
+    <string name="delete">Delete</string>
+    <string name="deleting">Deleting</string>
+    <string name="no_recording_file">(No recording file)</string>
+    <string name="alert_delete_multiple">These items will be deleted</string>
+    <string name="alert_delete_single">This item will be deleted</string>
+
     <string name="err_permission">Permission Error</string>
 </resources>

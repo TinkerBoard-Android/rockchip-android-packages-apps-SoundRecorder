@@ -164,6 +164,10 @@
                 style="@style/MediaButton"
                 android:src="@drawable/stop" />
 
+            <ImageButton android:id="@+id/fileListButton"
+                android:layout_height="match_parent"
+                style="@style/MediaButton"
+                android:src="@drawable/recording_file_list" />
         </LinearLayout>
 
     </LinearLayout>
