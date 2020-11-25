@@ -208,6 +208,7 @@ public class SoundRecorder extends Activity
     static final String MAX_FILE_SIZE_KEY = "max_file_size";
 
     static final String AUDIO_3GPP = "audio/3gpp";
+    static final String AUDIO_MPEG4 = "audio/mpeg";
     static final String AUDIO_AMR = "audio/amr";
     static final String AUDIO_ANY = "audio/*";
     static final String ANY_ANY = "*/*";
@@ -216,6 +217,7 @@ public class SoundRecorder extends Activity
 
     static final int BITRATE_AMR = 5900; // bits/sec
 
+    static final int BITRATE_MPEG4 = 128000;
     static final int BITRATE_3GPP = 12200;
     static final int BITRATE_AWB = 96024;
     static final int BITRATE_AAC = 128000;
@@ -315,7 +317,7 @@ public class SoundRecorder extends Activity
             //mRunFromLauncher= i.getAction().equals("android.intent.action.MAIN");
             mRunFromLauncher = "android.intent.action.MAIN".equals(i.getAction());
             if (AUDIO_AAC.equals(s) || AUDIO_AMR.equals(s) || AUDIO_3GPP.equals(s) || AUDIO_ANY.equals(s)
-                    || ANY_ANY.equals(s)) {
+                    || ANY_ANY.equals(s) || AUDIO_MPEG4.equals(s)) {
                 mRequestedType = s;
             } else if (s != null) {
                 // we only support amr and 3gpp formats right now
@@ -335,7 +337,7 @@ public class SoundRecorder extends Activity
         }
 
         if (AUDIO_ANY.equals(mRequestedType) || ANY_ANY.equals(mRequestedType)) {
-            mRequestedType = AUDIO_3GPP;
+            mRequestedType = AUDIO_MPEG4;
         }
 
         setContentView(R.layout.main);
@@ -479,12 +481,12 @@ public class SoundRecorder extends Activity
                             + "(.ogg)";
                 } else if (HAVE_AACENCODE_FEATURE) {
                     encodeFormatArray[0] = getString(R.string.recording_format_high)
-                            + "(.3gpp)";
+                            + "(.m4a)";
                 }
                 // encodeFormatArray[0] =
                 // getString(R.string.recording_format_high)+"(.3gpp)";
                 encodeFormatArray[1] = getString(R.string.recording_format_mid)
-                        + "(.3gpp)";
+                        + "(.m4a)";
                 encodeFormatArray[2] = getString(R.string.recording_format_low)
                         + "(.amr)";
             } else {
@@ -494,7 +496,7 @@ public class SoundRecorder extends Activity
                             + "(.ogg)";
                 } else if (HAVE_AACENCODE_FEATURE) {
                     encodeFormatArray[0] = getString(R.string.recording_format_high)
-                            + "(.3gpp)";
+                            + "(.m4a)";
                 }
                 // encodeFormatArray[0] =
                 // getString(R.string.recording_format_high)+"(.3gpp)";
@@ -508,7 +510,7 @@ public class SoundRecorder extends Activity
                         + "(.ogg)";
             } else if (HAVE_AACENCODE_FEATURE) {
                 encodeFormatArray[0] = getString(R.string.recording_format_high)
-                        + "(.3gpp)";
+                        + "(.m4a)";
             }
 
             encodeFormatArray[1] = getString(R.string.recording_format_low)
@@ -709,22 +711,27 @@ public class SoundRecorder extends Activity
                 recordingType = MediaRecorder.AudioEncoder.AAC;
                 extension = ".aac";
             } else if (AUDIO_3GPP.equals(mRequestedType)) {
-                mRemainingTimeCalculator.setBitRate(BITRATE_3GPP);
+                mRemainingTimeCalculator.setBitRate(BITRATE_AAC);
+                outputFileFormat = MediaRecorder.OutputFormat.THREE_GPP;
+                recordingType = MediaRecorder.AudioEncoder.AAC;
+                extension = ".3gpp";
+            } else if (AUDIO_MPEG4.equals(mRequestedType)) {
+                mRemainingTimeCalculator.setBitRate(BITRATE_MPEG4);
                 switch (mSelectedFormat) {
                     case HIGH:
                         if (HAVE_AACENCODE_FEATURE) {
                             mRemainingTimeCalculator.setBitRate(BITRATE_AAC);
-                            outputFileFormat = MediaRecorder.OutputFormat.THREE_GPP;
+                            outputFileFormat = MediaRecorder.OutputFormat.MPEG_4;
                             recordingType = MediaRecorder.AudioEncoder.AAC;
-                            extension = ".3gpp";
+                            extension = ".m4a";
                         }
                         break;
 
                     case MID:
                         mRemainingTimeCalculator.setBitRate(BITRATE_AWB);
-                        outputFileFormat = MediaRecorder.OutputFormat.THREE_GPP;
+                        outputFileFormat = MediaRecorder.OutputFormat.MPEG_4;
                         recordingType = MediaRecorder.AudioEncoder.AMR_WB;
-                        extension = ".3gpp";
+                        extension = ".m4a";
                         break;
 
                     case LOW:
@@ -954,16 +961,17 @@ public class SoundRecorder extends Activity
     private void addToPlaylist(ContentResolver resolver, int audioId, long playlistId) {
         try {
             String[] cols = new String[]{
-                    "count(*)"
+                    "_id"
             };
             Uri uri = MediaStore.Audio.Playlists.Members.getContentUri("external", playlistId);
             Cursor cur = resolver.query(uri, cols, null, null, null);
             cur.moveToFirst();
-            final int base = cur.getInt(0);
+            final int base = cur.getCount();//cur.getInt(0);
             cur.close();
             ContentValues values = new ContentValues();
-            values.put(MediaStore.Audio.Playlists.Members.PLAY_ORDER, Integer.valueOf(base + audioId));
+            //values.put(MediaStore.Audio.Playlists.Members.PLAY_ORDER, Integer.valueOf(base + audioId));
             values.put(MediaStore.Audio.Playlists.Members.AUDIO_ID, audioId);
+            Log.d(TAG, "base="+base + ", insert=" + uri + ", values="+values);
             resolver.insert(uri, values);
         } catch (IllegalArgumentException ex) {
             Log.e(TAG, "Catch IllegalArgumentException: Invalid column count(*)");
@@ -1054,7 +1062,11 @@ public class SoundRecorder extends Activity
         cv.put(MediaStore.Audio.Media.DATE_ADDED, (int) (current / 1000));
         cv.put(MediaStore.Audio.Media.DATE_MODIFIED, (int) (modDate / 1000));
         cv.put(MediaStore.Audio.Media.DURATION, sampleLengthMillis);
-        cv.put(MediaStore.Audio.Media.MIME_TYPE, mRequestedType);
+        if (AUDIO_MPEG4 == mRequestedType && LOW == mSelectedFormat) {
+            cv.put(MediaStore.Audio.Media.MIME_TYPE, AUDIO_AMR);
+        } else {
+            cv.put(MediaStore.Audio.Media.MIME_TYPE, mRequestedType);
+        }
         cv.put(MediaStore.Audio.Media.ARTIST,
                 res.getString(R.string.audio_db_artist_name));
         cv.put(MediaStore.Audio.Media.ALBUM,
@@ -1073,11 +1085,13 @@ public class SoundRecorder extends Activity
                     .show();
             return null;
         }
-        if (getPlaylistId(res) == -1) {
+        /*int playlistId = getPlaylistId(res);
+        Log.d(TAG, "playlistId="+playlistId);
+        if (playlistId == -1) {
             createPlaylist(res, resolver);
         }
         int audioId = Integer.valueOf(result.getLastPathSegment());
-        addToPlaylist(resolver, audioId, getPlaylistId(res));
+        addToPlaylist(resolver, audioId, getPlaylistId(res));*/
 
         // Notify those applications such as Music listening to the
         // scanner events that a recorded audio file just created.
