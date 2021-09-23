@@ -227,6 +227,7 @@ public class RecordingFileList extends Activity implements
      * query sound recorder recording file data
      */
     public ArrayList<HashMap<String, Object>> queryData() {
+        String selection = MediaStore.MediaColumns.OWNER_PACKAGE_NAME + " ='com.android.soundrecorder'";
         Cursor mRecordingFileCursor = this.getContentResolver().query(
                 MediaStore.Audio.Media.EXTERNAL_CONTENT_URI,
                 new String[]{MediaStore.Audio.Media.ARTIST,
@@ -237,9 +238,7 @@ public class RecordingFileList extends Activity implements
                         MediaStore.Audio.Media.DATE_ADDED,
                         MediaStore.Audio.Media.TITLE,
                         MediaStore.Audio.Media._ID},
-                MediaStore.Audio.Media.IS_MUSIC + " =0 and "
-                        + MediaStore.Audio.Media.DATA + " LIKE '" + "%" + "/"
-                        + Recorder.RECORD_FOLDER + "%" + "'", null, null);
+                selection,null, null);
         try {
             if (mRecordingFileCursor == null
                     || mRecordingFileCursor.getCount() == 0) {

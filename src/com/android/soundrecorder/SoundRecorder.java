@@ -431,6 +431,7 @@ public class SoundRecorder extends Activity
                 || HAVE_VORBISENC_FEATURE) {
             menu.add(0, OPTIONMENU_SELECT_FORMAT, 0,
                     getString(R.string.voice_quality));
+            menu.findItem(0).setVisible(false);
             if (AUDIO_HD_REC_SUPPORT) {
                 menu.add(0, OPTIONMENU_SELECT_MODE, 0,
                         getString(R.string.recording_mode));
@@ -1033,7 +1034,8 @@ public class SoundRecorder extends Activity
         Date date = new Date(current);
         SimpleDateFormat formatter = new SimpleDateFormat(
                 res.getString(R.string.audio_db_title_format));
-        String title = formatter.format(date);
+        //String title = formatter.format(date);
+        String title = file.getName().substring(0, file.getName().indexOf("."));
         Log.d("ljh", "----------------------------------");
         Log.d("ljh", "title=" + title + ",file.getAbsolutePath()=" + file.getAbsolutePath());
         Log.d("ljh", "----------------------------------");
@@ -1067,10 +1069,11 @@ public class SoundRecorder extends Activity
         } else {
             cv.put(MediaStore.Audio.Media.MIME_TYPE, mRequestedType);
         }
-        cv.put(MediaStore.Audio.Media.ARTIST,
+        /*cv.put(MediaStore.Audio.Media.ARTIST,
                 res.getString(R.string.audio_db_artist_name));
         cv.put(MediaStore.Audio.Media.ALBUM,
-                res.getString(R.string.audio_db_album_name));
+                res.getString(R.string.audio_db_album_name));*/
+        cv.put(MediaStore.Audio.Media.ALBUM, "Recordings");
         Log.d(TAG, "Inserting audio record: " + cv.toString());
         ContentResolver resolver = getContentResolver();
         Uri base = MediaStore.Audio.Media.EXTERNAL_CONTENT_URI;
@@ -1095,7 +1098,8 @@ public class SoundRecorder extends Activity
 
         // Notify those applications such as Music listening to the
         // scanner events that a recorded audio file just created.
-        sendBroadcast(new Intent(Intent.ACTION_MEDIA_SCANNER_SCAN_FILE, result));
+        sendBroadcast(new Intent(Intent.ACTION_MEDIA_SCANNER_SCAN_FILE,
+                Uri.fromFile(file)));
         return result;
     }
 
