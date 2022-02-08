@@ -417,6 +417,7 @@ public class RecordingFileList extends Activity implements
                 cursor.close();
             }
         }
+        CmdUtils.execCmd("sync");
     }
 
     /**

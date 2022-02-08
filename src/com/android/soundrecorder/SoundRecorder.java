@@ -873,6 +873,7 @@ public class SoundRecorder extends Activity
         } catch (UnsupportedOperationException ex) {  // Database manipulation failure
             return;
         }
+        CmdUtils.execCmd("sync");
         if (uri == null) {
             return;
         }
